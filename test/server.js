@@ -162,6 +162,58 @@ describe('server', function () {
       });
     });
 
+    it('should send the cookie with Secure flag', function (done) {
+      listen({ cookieSecure: true }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (err, res) {
+            expect(err).to.be(null);
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly; Secure');
+            done();
+          });
+      });
+    });
+
+    it('should not send the cookie with Secure flag', function (done) {
+      listen({ cookieSecure: false }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (err, res) {
+            expect(err).to.be(null);
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
+            done();
+          });
+      });
+    });
+
+    it('should not send the cookie with Secure flag when cookieSecure is set with non-boolean value', function (done) {
+      listen({ cookieSecure: 'true' }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (err, res) {
+            expect(err).to.be(null);
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
+            done();
+          });
+      });
+    });
+
+    it('should send the cookie with Secure flag, only', function (done) {
+      listen({ cookieSecure: true, cookieHttpOnly: false, cookiePath: false }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (err, res) {
+            expect(err).to.be(null);
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Secure');
+            done();
+          });
+      });
+    });
+
     it('should send the io cookie with httpOnly=true', function (done) {
       listen({ cookieHttpOnly: true }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
