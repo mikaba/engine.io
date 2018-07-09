@@ -263,6 +263,11 @@ to a single process.
       - `http.IncomingMessage`: a node request object
       - `http.ServerResponse`: a node response object
     - **Returns** `Server` for chaining
+- `handleCorsHeaders`
+   - Called internally when an error is returned to a client. It will set the corresponding CORS headers.
+   - **Parameters**
+     - `http.IncomingMessage`: a node request object
+   - **Returns** `object` with headers (key:value)
 - `handleUpgrade`
     - Called internally when a `Engine` ws upgrade is intercepted.
     - **Parameters** (same as `upgrade` event)
